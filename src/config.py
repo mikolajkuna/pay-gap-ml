@@ -17,7 +17,7 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
 # Target column for prediction
-TARGET_COLUMN = "pay_gap"  # <- zamień na faktyczną nazwę kolumny w CSV
+TARGET_COLUMN = "income"  
 
 # Model output directory
 MODEL_DIR = ROOT_DIR / "models"
