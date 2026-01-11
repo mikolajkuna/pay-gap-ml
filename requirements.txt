@@ -10,9 +10,9 @@ seaborn>=0.13.0
 # ML 
 
 xgboost>=1.8.0
-scikit-optimize>=1.2.0   # jeśli używasz jakiegoś bayesowskiego strojenia
-ISLP>=1.0.0              # dla BART
-tabpfn>=1.2.1            # TabPFN model
+scikit-optimize==0.10.2   
+ISLP>=1.0.0              
+tabpfn>=1.2.1          
 
 
 # Model 
@@ -22,4 +22,4 @@ shap>=0.43.0
 
 # Optional 
 
-python-dotenv>=1.0.0     # jeśli masz plik .env z HF_TOKEN
+python-dotenv>=1.0.0     
