@@ -1,24 +1,26 @@
 """
-Store useful variables and configuration
+Configuration file for PayGap-ML project.
+
+Contains paths to data directories, target column, and other global settings.
 """
 
 from pathlib import Path
 
-from dotenv import load_dotenv
+# Root directory of the project (repo root)
+ROOT_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables from .env file if it exists
-load_dotenv()
-
-# Paths
-PROJ_ROOT = Path(__file__).resolve().parents[1]
-
-DATA_DIR = PROJ_ROOT / "data"
+# Data directories
+DATA_DIR = ROOT_DIR / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
-MODELS_DIR = PROJ_ROOT / "models"
+# Target column for prediction
+TARGET_COLUMN = "pay_gap"  # <- zamień na faktyczną nazwę kolumny w CSV
 
-REPORTS_DIR = PROJ_ROOT / "reports"
-FIGURES_DIR = REPORTS_DIR / "figures"
+# Model output directory
+MODEL_DIR = ROOT_DIR / "models"
+
+# Optional: random seed for reproducibility
+RANDOM_SEED = 42
