@@ -1,0 +1,16 @@
+--- TabPFN ---
+MAE test: 4,655 PLN
+CV test: 95.81%
+Średnie income (true): 7,906 PLN
+Średnie income (pred): 6,916 PLN
+
+--- Luka płacowa (kontrfaktyczna, ML) ---
+Średnia luka: 184 PLN
+Średnia luka (%): 0.40%
+Mediana luka: 182 PLN
+Mediana luka (%): 2.73%
+
+--- Porównanie gender pay gap ---
+Prosty (średnie): 15 PLN, 0.19%
+Kontrfaktyczny (ML): 184 PLN, 0.40%
+Kontrfaktyczny mediana (ML): 182 PLN, 2.73%

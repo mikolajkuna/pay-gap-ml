@@ -1,0 +1,16 @@
+--- Bayesian Ridge ---
+MAE test: 4,237 PLN
+CV test: 92.27%
+Średnie income (true): 7,906 PLN
+Średnie income (pred): 6,628 PLN
+
+--- Luka płacowa (kontrfaktyczna, ML) ---
+Średnia luka: -0 PLN
+Średnia luka (%): -0.00%
+Mediana luka: -0 PLN
+Mediana luka (%): -0.00%
+
+--- Porównanie gender pay gap ---
+Prosty (średnie): 15 PLN, 0.19%
+Kontrfaktyczny (ML): -0 PLN, -0.00%
+Kontrfaktyczny mediana (ML): -0 PLN, -0.00%

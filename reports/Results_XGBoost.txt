@@ -1,0 +1,16 @@
+--- XGBoost ---
+MAE test: 5,436 PLN
+CV test: 107.78%
+Średnie income (true): 7,906 PLN
+Średnie income (pred): 7,332 PLN
+
+--- Luka płacowa (kontrfaktyczna, ML) ---
+Średnia luka: 208 PLN
+Średnia luka (%): -1.56%
+Mediana luka: 436 PLN
+Mediana luka (%): 6.58%
+
+--- Porównanie gender pay gap ---
+Prosty (średnie): 15 PLN, 0.19%
+Kontrfaktyczny (ML): 208 PLN, -1.56%
+Kontrfaktyczny mediana (ML): 436 PLN, 6.58%

@@ -1,0 +1,21 @@
+--- BART ---
+MAE test: 4,991 PLN
+CV test: 98.67%
+Średnie income (true): 7,906 PLN
+Średnie income (pred): 5,547 PLN
+
+--- Luka płacowa (kontrfaktyczna, ML) ---
+Średnia luka: -258 PLN
+Średnia luka (%): 9.16%
+Mediana luka: -976 PLN
+Mediana luka (%): -19.64%
+
+--- Porównanie gender pay gap ---
+Prosty (średnie): 15 PLN, 0.19%
+Kontrfaktyczny (ML): -258 PLN, 9.16%
+Kontrfaktyczny mediana (ML): -976 PLN, -19.64%
+ExactExplainer explainer: 151it [03:24,  1.39s/it]
+Średni wpływ gender (SHAP, PLN): -16
+Średni wpływ child (SHAP, PLN): -57
+Średni wpływ education_level (SHAP, PLN): -2
+Średni wpływ job_level (SHAP, PLN): -45
