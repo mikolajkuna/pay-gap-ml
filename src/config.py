@@ -1,26 +1,30 @@
-"""
-Configuration file for PayGap-ML project.
+# src/mikolajkuna/config.py
 
-Contains paths to data directories, target column, and other global settings.
+"""
+Konfiguracja projektu Pay Gap ML:
+- ścieżki do danych
+- foldery na zapisane modele
+- inne stałe globalne
 """
 
 from pathlib import Path
 
-# Root directory of the project (repo root)
-ROOT_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent 
 
-# Data directories
-DATA_DIR = ROOT_DIR / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-INTERIM_DATA_DIR = DATA_DIR / "interim"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-EXTERNAL_DATA_DIR = DATA_DIR / "external"
+DATA_DIR = BASE_DIR / "data"
+TRAIN_CSV = DATA_DIR / "salary_data_train.csv"
+SYNTHETIC_CSV = DATA_DIR / "salary_data_synthetic.csv"
 
-# Target column for prediction
-TARGET_COLUMN = "income"  
+MODELS_DIR = BASE_DIR / "models"
 
-# Model output directory
-MODEL_DIR = ROOT_DIR / "models"
+MODEL_FILES = {
+    "linear_regression": MODELS_DIR / "linear_regression.pkl",
+    "random_forest": MODELS_DIR / "random_forest.pkl",
+    "xgboost": MODELS_DIR / "xgboost.pkl",
+    "bayesian_ridge": MODELS_DIR / "bayesian_ridge.pkl",
+    "bart": MODELS_DIR / "bart.pkl",
+    "tabpfn": MODELS_DIR / "tabpfn.pkl"
+}
 
-# Optional: random seed for reproducibility
-RANDOM_SEED = 42
+RANDOM_STATE = 42
+MIN_INCOME = 1276  
