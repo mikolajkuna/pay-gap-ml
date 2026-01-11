@@ -1,59 +1,60 @@
+# src/mikolajkuna/dataset.py
+
 """
 Dataset module for PayGap-ML project.
 
-Loads raw CSV files, optionally merges synthetic data, 
-and saves processed dataset ready for feature engineering and modeling.
+Loads raw CSV files, merges synthetic data if requested,
+preprocesses data, and saves processed dataset ready for modeling.
 """
 
 from pathlib import Path
 import pandas as pd
+from src.mikolajkuna import config, features
 
-from src.config import RAW_DATA_DIR, PROCESSED_DATA_DIR
 
-
-def build_dataset(
-    train_file: Path = RAW_DATA_DIR / "salary_data_train.csv",
-    synthetic_file: Path = RAW_DATA_DIR / "salary_data_synthetic.csv",
-    output_file: Path = PROCESSED_DATA_DIR / "paygap.csv",
+def load_and_preprocess(
+    train_file: Path = config.TRAIN_CSV,
+    synthetic_file: Path = config.SYNTHETIC_CSV,
+    output_file: Path = config.DATA_DIR / "paygap_processed.csv",
     include_synthetic: bool = True
 ) -> pd.DataFrame:
     """
-    Load training and optional synthetic CSVs, merge, and save processed dataset.
-
-    Args:
-        train_file (Path): Path to main training CSV.
-        synthetic_file (Path): Path to synthetic CSV.
-        output_file (Path): Path to save processed dataset.
-        include_synthetic (bool): Whether to merge synthetic data.
+    Load training and optional synthetic CSVs, preprocess, merge, and save.
 
     Returns:
         pd.DataFrame: Processed dataset ready for feature engineering.
     """
+
     if not train_file.exists():
         raise FileNotFoundError(f"Training file not found: {train_file}")
+    df_train = pd.read_csv(train_file, sep="," if "," in open(train_file).readline() else ";")
+    print(f"[INFO] Loaded training data: {df_train.shape[0]} rows")
 
-    # Load training data
-    df_train = pd.read_csv(train_file)
-    print(f"[INFO] Loaded training data: {train_file} ({df_train.shape[0]} rows)")
-
-    # Optionally load and merge synthetic data
+    # Load synthetic if requested
     if include_synthetic and synthetic_file.exists():
-        df_synth = pd.read_csv(synthetic_file)
-        print(f"[INFO] Loaded synthetic data: {synthetic_file} ({df_synth.shape[0]} rows)")
+        df_synth = pd.read_csv(synthetic_file, sep="," if "," in open(synthetic_file).readline() else ";")
         df = pd.concat([df_train, df_synth], ignore_index=True)
-        print(f"[INFO] Combined dataset shape: {df.shape}")
+        print(f"[INFO] Combined dataset: {df.shape[0]} rows")
     else:
         df = df_train
 
-    # OPTIONAL: preprocessing steps can be added here
-    # e.g., renaming columns, filling missing values, converting types
-    # df["gender"] = df["gender"].astype(str)
-    # df.fillna(method="ffill", inplace=True)
+    gender_map = {"M": 1, "Male": 1, "m": 1, "F": 0, "Female": 0, "f": 0}
+    df["gender"] = df["gender"].map(gender_map)
 
-    # Ensure processed directory exists
-    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Save processed dataset
+    numeric_cols = features.FEATURES + ["income"]
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+
+    df = df[(df["income"] >= config.MIN_INCOME) & (df[numeric_cols].ge(0).all(axis=1))]
+
+
+    df = df.dropna().reset_index(drop=True)
+    print(f"[INFO] After preprocessing: {df.shape[0]} rows")
+
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_file, index=False)
     print(f"[INFO] Processed dataset saved to {output_file}")
 
@@ -61,5 +62,4 @@ def build_dataset(
 
 
 if __name__ == "__main__":
-    # Domyślnie scalamy train + synthetic
-    build_dataset()
+    load_and_preprocess()
