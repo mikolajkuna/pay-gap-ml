@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestRegressor
 import xgboost as xgb
 from ISLP.bart import BART
 from tabpfn import TabPFNRegressor
+from autogluon.tabular import TabularPredictor
 
 os.makedirs("models", exist_ok=True)
 
@@ -41,3 +42,7 @@ dump(bart_model, "models/bart_model.joblib")
 tabpfn_model = TabPFNRegressor(random_state=42)
 tabpfn_model.fit(X_train, y_train)
 dump(tabpfn_model, "models/tabpfn_model.joblib")
+
+# --- AutoGluon ---
+predictor = TabularPredictor(label='income', problem_type='regression').fit(train_df)
+predictor.save("models/autogluon_model")
