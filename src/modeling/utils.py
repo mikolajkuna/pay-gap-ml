@@ -1,7 +1,6 @@
-# src/utils.py
-
 import pandas as pd
 import numpy as np
+from autogluon.tabular import TabularPredictor
 
 def load_csv(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -26,8 +25,14 @@ def counterfactual_gap(model, X: pd.DataFrame):
     X_f = X.copy()
     X_m["gender"] = 1
     X_f["gender"] = 0
-    pred_m = model.predict(X_m)
-    pred_f = model.predict(X_f)
+    
+    if isinstance(model, TabularPredictor):
+        pred_m = model.predict(X_m)  
+        pred_f = model.predict(X_f)  
+    else:
+        pred_m = model.predict(X_m) 
+        pred_f = model.predict(X_f)
+    
     gap_pln = pred_m - pred_f
     gap_pct = gap_pln / pred_m * 100
     return gap_pln, gap_pct
