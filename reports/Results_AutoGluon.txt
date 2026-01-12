@@ -1,0 +1,16 @@
+--- AutoGluon ---
+MAE test: 4,829 PLN
+CV test: 97.51%
+Średnie income (true): 7,906 PLN
+Średnie income (pred): 6,937 PLN
+
+--- Luka płacowa (AutoGluon) ---
+Średnia luka: 353 PLN
+Średnia luka (%): 1.46%
+Mediana luka: 414 PLN
+Mediana luka (%): 6.03%
+
+--- Porównanie gender pay gap ---
+Prosty (średnie): 15 PLN, 0.19%
+Kontrfaktyczny (ML): 353 PLN, 1.46%
+Kontrfaktyczny mediana (ML): 414 PLN, 6.03%
