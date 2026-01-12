@@ -24,6 +24,7 @@ MODEL_FILES = {
     "bayesian_ridge": MODELS_DIR / "bayesian_ridge.pkl",
     "bart": MODELS_DIR / "bart.pkl",
     "tabpfn": MODELS_DIR / "tabpfn.pkl"
+    "autogluon": MODELS_DIR / "autogluon.pkl"
 }
 
 RANDOM_STATE = 42
