@@ -15,5 +15,9 @@ tabpfn>=1.2.1
 joblib>=1.3.0
 shap>=0.43.0
 
+# AutoGluon dependencies
+autogluon==0.7.0
+autogluon.tabular==0.7.0
+
 # Optional
 python-dotenv>=1.0.0
