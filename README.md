@@ -4,7 +4,7 @@
 
 ## Overview
 This repository contains code for analyzing **gender pay gaps** using machine learning.  
-It includes multiple models, such as **Linear Regression, Ridge, Random Forest, Bayesian Ridge, XGBoost, BART, and TabPFN**, and provides counterfactual analysis of pay differences.  
+It includes multiple models, such as **Linear Regression, Ridge, Random Forest, Bayesian Ridge, XGBoost, BART, TabPFN adn AutoGluon**, and provides counterfactual analysis of pay differences.  
 
 ## Features
 - Training and evaluation of various ML models for salary prediction
