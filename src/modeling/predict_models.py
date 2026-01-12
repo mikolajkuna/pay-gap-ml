@@ -4,6 +4,7 @@ from utils import load_csv, preprocess, counterfactual_gap
 from sklearn.metrics import mean_absolute_error
 import shap
 from autogluon.tabular import TabularPredictor
+from tabpfn import TabPFNRegressor
 
 train_path = "data/salary_data_train.csv"
 synthetic_path = "data/salary_data_synthetic.csv"
@@ -23,7 +24,6 @@ models = {
     "AutoGluon": TabularPredictor.load("models/autogluon_model")
 }
 
-# Wczytanie XGB
 models["XGB"].load_model("models/xgb_model.json")
 
 for name, model in models.items():
@@ -39,7 +39,6 @@ for name, model in models.items():
     print(f"MAE: {mae:,.0f} PLN, Średnie income pred: {preds.mean():,.0f}")
     print(f"Średnia luka kontrfaktyczna: {gap_pln.mean():,.0f} PLN, {gap_pct.mean():.2f}%")
 
-    # SHAP (opcjonalnie dla mniejszych próbek)
     X_shap = X_test.sample(n=150, random_state=42)
     explainer = shap.Explainer(model.predict, X_shap)
     shap_values = explainer(X_shap)
