@@ -9,8 +9,8 @@ Project configuration for Pay Gap ML:
 
 from pathlib import Path
 
-# Base directory of the project
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+# Base directory of the project (repo root)
+BASE_DIR = Path(__file__).resolve().parent.parent  # src/ -> repo root
 
 # Data paths
 DATA_DIR = BASE_DIR / "data" / "processed"
