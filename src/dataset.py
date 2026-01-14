@@ -1,4 +1,4 @@
-# src/mikolajkuna/dataset.py
+# src/dataset.py
 
 """
 Dataset module for PayGap-ML project.
@@ -9,7 +9,7 @@ preprocesses data, and saves a processed dataset ready for modeling.
 
 from pathlib import Path
 import pandas as pd
-from src.mikolajkuna import config, features
+from src import config, features
 
 
 def load_csv(file_path: Path) -> pd.DataFrame:
