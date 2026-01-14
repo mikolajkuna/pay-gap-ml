@@ -1,23 +1,26 @@
-# Core
+# ===================== Core =====================
 pandas>=2.1.0
-numpy==2.3.0
+numpy>=1.26.0
 scikit-learn>=1.3.0
 matplotlib>=3.8.0
 seaborn>=0.13.0
 
-# ML
+# ===================== ML ======================
 xgboost>=1.8.0
 scikit-optimize==0.10.2
 ISLP>=1.0.0
 tabpfn>=1.2.1
 
-# Model
+# ===================== Model utils ==============
 joblib>=1.3.0
 shap>=0.43.0
 
-# AutoGluon dependencies
+# ===================== AutoGluon =================
 autogluon==0.7.0
 autogluon.tabular==0.7.0
+ray[tune]>=2.9.0
+lightgbm>=4.0.0
+fastparquet>=2023.12.0
 
-# Optional
+# ===================== Optional =================
 python-dotenv>=1.0.0
