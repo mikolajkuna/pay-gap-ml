@@ -1,16 +1,16 @@
---- Linear Regression ---
-MAE test: 4,546 PLN
-CV test: 94.94%
-Średnie income (true): 7,906 PLN
-Średnie income (pred): 6,522 PLN
+--- Regresja liniowa ---
+MAE test: 4388 PLN
+CV test: 55.01%
+Średnie income (true): 7977 PLN
+Średnie income (pred): 7687 PLN
 
 --- Luka płacowa (kontrfaktyczna, ML) ---
-Średnia luka: -1,297 PLN
-Średnia luka (%): -24.87%
-Mediana luka: -1,297 PLN
-Mediana luka (%): -21.34%
+Średnia luka: -132 PLN
+Średnia luka (%): -1.72%
+Mediana luka: -179 PLN
+Mediana luka (%): -2.29%
 
 --- Porównanie gender pay gap ---
-Prosty (średnie): 15 PLN, 0.19%
-Kontrfaktyczny (ML): -1,297 PLN, -24.87%
-Kontrfaktyczny mediana (ML): -1,297 PLN, -21.34%
+Prosty (średnie): -132 PLN, -1.72%
+Kontrfaktyczny (ML): -132 PLN, -1.72%
+Kontrfaktyczny mediana (ML): -179 PLN, -2.29%
