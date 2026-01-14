@@ -1,30 +1,18 @@
-# src/modeling/train_bayes.py
-from pathlib import Path
-from sklearn.linear_model import BayesianRidge
+# src/modeling/predict_bayes.py
+
 import joblib
+import numpy as np
+import pandas as pd
 
-class BayesTrainer:
-    def __init__(self, n_iter: int = 300, alpha_1: float = 1e-6, alpha_2: float = 1e-6, lambda_1: float = 1e-6, lambda_2: float = 1e-6):
-        self.n_iter = n_iter
-        self.alpha_1 = alpha_1
-        self.alpha_2 = alpha_2
-        self.lambda_1 = lambda_1
-        self.lambda_2 = lambda_2
-        self.model = None
+class BayesPredictor:
+    def __init__(self, model_path: Path):
+        """
+        Inicjalizacja klasy do przewidywania przy użyciu modelu BayesianRidge.
+        
+        :param model_path: Ścieżka do zapisany modelu
+        """
+        self.model = joblib.load(model_path)
 
-    def train(self, X, y):
-        self.model = BayesianRidge(
-            n_iter=self.n_iter,
-            alpha_1=self.alpha_1,
-            alpha_2=self.alpha_2,
-            lambda_1=self.lambda_1,
-            lambda_2=self.lambda_2,
-            compute_score=True
-        )
-        self.model.fit(X, y)
-        return self.model
-
-    def save(self, path: Path):
-        path.parent.mkdir(parents=True, exist_ok=True)
-        joblib.dump(self.model, path)
-        print(f"[INFO] Model saved to {path}")
+    def predict(self, X: pd.DataFrame) -> np.ndarray:
+        """Dokonanie predykcji"""
+        return self.model.predict(X)
