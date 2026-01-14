@@ -1,17 +1,38 @@
+# src/config.py
+
+"""
+Project configuration for Pay Gap ML:
+- paths to data files
+- folders for saved models
+- other global constants
+"""
+
 from pathlib import Path
+import sys
 
-# Base directory of the project (folder 'pay-gap-ml')
-BASE_DIR = Path(__file__).resolve().parent.parent
+# ---------------------------
+# Base directory
+# ---------------------------
+try:
+    # works in regular .py scripts
+    BASE_DIR = Path(__file__).resolve().parent.parent
+except NameError:
+    # fallback for notebooks
+    BASE_DIR = Path.cwd()
 
+# ---------------------------
 # Data paths
+# ---------------------------
 DATA_DIR = BASE_DIR / "data" / "processed"
 TRAIN_CSV = DATA_DIR / "salary_data_train.csv"
 SYNTHETIC_CSV = DATA_DIR / "salary_data_synthetic.csv"
 
-# Models directory
+# ---------------------------
+# Models folder
+# ---------------------------
 MODELS_DIR = BASE_DIR / "models"
+MODELS_DIR.mkdir(parents=True, exist_ok=True)  # ensure folder exists
 
-# Model files
 MODEL_FILES = {
     "linear_regression": MODELS_DIR / "linear_regression.pkl",
     "random_forest": MODELS_DIR / "random_forest.pkl",
@@ -22,6 +43,8 @@ MODEL_FILES = {
     "autogluon": MODELS_DIR / "autogluon.pkl"
 }
 
-# Global constants
+# ---------------------------
+# Other constants
+# ---------------------------
 RANDOM_STATE = 42
 MIN_INCOME = 1276
