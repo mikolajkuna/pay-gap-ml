@@ -1,4 +1,4 @@
-# src/mikolajkuna/plots.py
+# src/plots.py
 
 """
 Module for visualizing PayGap-ML results.
