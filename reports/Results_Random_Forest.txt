@@ -1,21 +1,16 @@
---- RandomForest ---
-MAE test: 4,924 PLN
-CV test: 98.82%
-Średnie income (true): 7,906 PLN
-Średnie income (pred): 7,288 PLN
+--- Random Forest ---
+MAE test: 4,437 PLN
+CV test: 55.62%
+Średnie income (true): 7,977 PLN
+Średnie income (pred): 7,667 PLN
 
 --- Luka płacowa (kontrfaktyczna, ML) ---
-Średnia luka: 173 PLN
-Średnia luka (%): -0.93%
-Mediana luka: 273 PLN
-Mediana luka (%): 4.28%
+Średnia luka: -43 PLN
+Średnia luka (%): -0.56%
+Mediana luka: -47 PLN
+Mediana luka (%): -0.64%
 
 --- Porównanie gender pay gap ---
-Prosty (średnie): 15 PLN, 0.19%
-Kontrfaktyczny (ML): 173 PLN, -0.93%
-Kontrfaktyczny mediana (ML): 273 PLN, 4.28%               
-Średni wpływ gender (SHAP, PLN): -49
-Średni wpływ child (SHAP, PLN): 137
-Średni wpływ education_level (SHAP, PLN): 68
-Średni wpływ job_level (SHAP, PLN): 3
-
+Prosty (średnie): -153 PLN, -1.92%
+Kontrfaktyczny (ML): -43 PLN, -0.56%
+Kontrfaktyczny mediana (ML): -47 PLN, -0.64%
