@@ -1,73 +1,66 @@
 from pathlib import Path
-import joblib
+import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_absolute_error
-import shap
+from src.utils import load_csv, preprocess
+from typing import List
+import xgboost as xgb
 
-from src.dataset import load_and_preprocess
-from src.config import PROCESSED_DATA_DIR, MODEL_DIR, FEATURES
 
-def main():
-    train_path = PROCESSED_DATA_DIR / "salary_data_train.csv"
-    test_path = PROCESSED_DATA_DIR / "salary_data_synthetic.csv"
+class XGBPredictor:
+    """
+    XGBoost predictor class for salary prediction.
+    Handles loading test data, preprocessing, making predictions,
+    and calculating counterfactual gender pay gaps.
+    """
 
-    train_df, test_df = load_and_preprocess(train_path, test_path)
+    def __init__(self, model: xgb.XGBRegressor, data_path: Path, feature_columns: List[str]) -> None:
+        self.model = model
+        self.data_path = data_path
+        self.feature_columns = feature_columns
+        self.X_test: pd.DataFrame | None = None
+        self.df_test: pd.DataFrame | None = None
+        self.preds: np.ndarray | None = None
 
-    X_train = train_df[FEATURES].astype(np.float32)
-    y_train = train_df["income"].astype(np.float32)
-    X_test = test_df[FEATURES].astype(np.float32)
-    y_test = test_df["income"].astype(np.float32)
+    def load_and_prepare_data(self) -> None:
+        df = preprocess(load_csv(self.data_path))
+        self.df_test = df
+        self.X_test = df[self.feature_columns].astype(np.float32)
 
-    model = joblib.load(MODEL_DIR / "xgb_model.joblib")
-    preds = model.predict(X_test)
-    mae = mean_absolute_error(y_test, preds)
-    cv = np.std(y_test - preds) / np.mean(y_test) * 100
+    def predict(self) -> np.ndarray:
+        if self.X_test is None:
+            raise ValueError("Test data not loaded. Call load_and_prepare_data() first.")
+        self.preds = self.model.predict(self.X_test)
+        return self.preds
 
-    print(f"\n--- XGBoost ---")
-    print(f"MAE test: {mae:,.0f} PLN")
-    print(f"CV test: {cv:.2f}%")
-    print(f"Średnie income (true): {y_test.mean():,.0f} PLN")
-    print(f"Średnie income (pred): {preds.mean():,.0f} PLN")
+    def evaluate_gap(self) -> dict:
+        if self.preds is None or self.df_test is None:
+            raise ValueError("Predictions not available. Call predict() first.")
 
-    X_cf_m = X_test.copy()
-    X_cf_f = X_test.copy()
-    X_cf_m["gender"] = 1
-    X_cf_f["gender"] = 0
+        df = self.df_test.copy()
+        preds = self.preds
 
-    gap_pln = model.predict(X_cf_m) - model.predict(X_cf_f)
-    gap_pct = gap_pln / model.predict(X_cf_m) * 100
+        # Counterfactual predictions
+        X_cf_m = self.X_test.copy()
+        X_cf_f = self.X_test.copy()
+        X_cf_m["gender"] = 1
+        X_cf_f["gender"] = 0
+        pred_m = self.model.predict(X_cf_m)
+        pred_f = self.model.predict(X_cf_f)
 
-    print(f"\nŚrednia luka (PLN): {np.mean(gap_pln):,.0f}")
-    print(f"Średnia luka (%): {np.mean(gap_pct):.2f}")
-    print(f"Mediana luka (PLN): {np.median(gap_pln):,.0f}")
-    print(f"Mediana luka (%): {np.median(gap_pct):.2f}")
+        gap_pln = pred_m - pred_f
+        gap_pct = gap_pln / pred_m * 100
 
-    mean_m = y_test[X_test["gender"] == 1].mean()
-    mean_f = y_test[X_test["gender"] == 0].mean()
-    simple_gap_pln = mean_m - mean_f
-    simple_gap_pct = simple_gap_pln / mean_m * 100
+        # Simple mean-based gap
+        mean_m = df[df["gender"] == 1]["income"].mean()
+        mean_f = df[df["gender"] == 0]["income"].mean()
+        simple_gap_pln = mean_m - mean_f
+        simple_gap_pct = simple_gap_pln / mean_m * 100
 
-    print(f"\nProsty gap (średnie): {simple_gap_pln:,.0f} PLN, {simple_gap_pct:.2f}%")
-    print(f"Kontrfaktyczny gap (ML): {np.mean(gap_pln):,.0f} PLN, {np.mean(gap_pct):.2f}%")
-    print(f"Kontrfaktyczny mediana (ML): {np.median(gap_pln):,.0f} PLN, {np.median(gap_pct):.2f}%")
-
-    X_shap = X_test.sample(n=150, random_state=42)
-    features_of_interest = ["gender", "child", "education_level", "job_level"]
-    X_shap_reduced = X_shap[features_of_interest]
-
-    def predict_wrapper(X_reduced):
-        X_full = X_test.loc[X_reduced.index].copy()
-        X_full[features_of_interest] = X_reduced.values
-        return model.predict(X_full)
-
-    explainer = shap.Explainer(predict_wrapper, X_shap_reduced)
-    shap_values = explainer(X_shap_reduced)
-
-    shap.summary_plot(shap_values, X_shap_reduced, plot_type="bar")
-    shap.summary_plot(shap_values, X_shap_reduced)
-
-    for idx, feat in enumerate(features_of_interest):
-        print(f"Średni wpływ {feat} (SHAP, PLN): {shap_values.values[:, idx].mean():,.0f}")
-
-if __name__ == "__main__":
-    main()
+        return {
+            "counterfactual_mean_pln": np.mean(gap_pln),
+            "counterfactual_mean_pct": np.mean(gap_pct),
+            "counterfactual_median_pln": np.median(gap_pln),
+            "counterfactual_median_pct": np.median(gap_pct),
+            "simple_mean_pln": simple_gap_pln,
+            "simple_mean_pct": simple_gap_pct
+        }

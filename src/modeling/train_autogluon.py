@@ -1,30 +1,61 @@
 from pathlib import Path
-import joblib
-import numpy as np
 import pandas as pd
+import numpy as np
 from autogluon.tabular import TabularPredictor
-from src.dataset import load_and_preprocess
-from src.config import PROCESSED_DATA_DIR, MODEL_DIR, FEATURES
+
+class AutoGluonTrainer:
+    """
+    AutoGluon trainer class for tabular regression.
+    Trains model on processed salary dataset.
+    """
+
+    def __init__(
+        self,
+        data_path: Path,
+        label_column: str,
+    ) -> None:
+        self.data_path = data_path
+        self.label_column = label_column
+        self.predictor: TabularPredictor | None = None
+        self.training_data: pd.DataFrame | None = None
+
+    def load_data(self) -> None:
+        df = pd.read_csv(self.data_path, sep=";")
+        df_clean = df.dropna(subset=[self.label_column])
+        self.training_data = df_clean
+
+    def train(self) -> TabularPredictor:
+        """
+        Train AutoGluon model on the dataset.
+        The TabularPredictor object is returned.
+        """
+        self.predictor = TabularPredictor(
+            label=self.label_column,
+            verbosity=0,
+        ).fit(self.training_data)
+        return self.predictor
+
+    def evaluate(self) -> dict[str, float]:
+        """
+        Returns training evaluation metrics (using same training data).
+        """
+        if self.predictor is None:
+            raise RuntimeError("Model has not been trained yet.")
+        performance = self.predictor.evaluate(self.training_data)
+        return performance
 
 
-def main():
-    train_path = PROCESSED_DATA_DIR / "salary_data_train.csv"
-    test_path = PROCESSED_DATA_DIR / "salary_data_synthetic.csv"
+def main() -> None:
+    train_path = Path("data/processed/salary_data_train.csv")
+    label = "income"
 
-    train_df, _ = load_and_preprocess(train_path, test_path)
+    trainer = AutoGluonTrainer(data_path=train_path, label_column=label)
+    trainer.load_data()
+    predictor = trainer.train()
+    metrics = trainer.evaluate()
 
-    X_train = train_df[FEATURES]
-    y_train = train_df["income"]
-
-    train_data = train_df[FEATURES + ["income"]]
-
-
-    predictor = TabularPredictor(label="income", path=str(MODEL_DIR))
-
-    predictor.fit(train_data)
-
-    MODEL_DIR.mkdir(parents=True, exist_ok=True)
-    predictor.save()
+    print("\n--- AutoGluon train metrics ---")
+    print(metrics)
 
 
 if __name__ == "__main__":
