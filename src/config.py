@@ -1,4 +1,4 @@
-# src/mikolajkuna/config.py
+# src/config.py
 
 """
 Project configuration for Pay Gap ML:
