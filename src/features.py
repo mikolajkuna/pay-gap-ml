@@ -1,4 +1,4 @@
-# src/mikolajkuna/features.py
+# src/features.py
 
 """
 Feature engineering module for PayGap-ML project.
