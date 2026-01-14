@@ -1,5 +1,3 @@
-# src/features.py
-
 """
 Feature engineering module for PayGap-ML project.
 
@@ -116,3 +114,5 @@ def get_feature_columns() -> List[str]:
     """
     return ["age", "gender", "education_level", "job_level",
             "experience_years", "distance_from_home", "absence", "child"]
+
+FEATURES = get_feature_columns()
