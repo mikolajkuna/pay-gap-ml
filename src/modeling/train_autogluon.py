@@ -1,62 +1,45 @@
+# src/modeling/train_autogluon.py
+
 from pathlib import Path
 import pandas as pd
 import numpy as np
 from autogluon.tabular import TabularPredictor
+from sklearn.metrics import mean_absolute_error
+from src.dataset.loader import CSVLoader
+from typing import Optional
 
 class AutoGluonTrainer:
-    """
-    AutoGluon trainer class for tabular regression.
-    Trains model on processed salary dataset.
-    """
+    def __init__(self, feature_columns: list[str], target_column: str = "income", save_path: Path = Path("models/autogluon")):
+        self.feature_columns = feature_columns
+        self.target_column = target_column
+        self.save_path = save_path
+        self.model: Optional[TabularPredictor] = None
+        self.X_train: Optional[pd.DataFrame] = None
+        self.y_train: Optional[pd.Series] = None
 
-    def __init__(
-        self,
-        data_path: Path,
-        label_column: str,
-    ) -> None:
-        self.data_path = data_path
-        self.label_column = label_column
-        self.predictor: TabularPredictor | None = None
-        self.training_data: pd.DataFrame | None = None
+    def load_data(self, train_file: Path) -> None:
+        loader = CSVLoader(train_file, self.feature_columns, self.target_column)
+        self.X_train, self.y_train = loader.load()
+        # AutoGluon expects target column inside the DataFrame
+        self.train_data = self.X_train.copy()
+        self.train_data[self.target_column] = self.y_train
 
-    def load_data(self) -> None:
-        df = pd.read_csv(self.data_path, sep=";")
-        df_clean = df.dropna(subset=[self.label_column])
-        self.training_data = df_clean
-
-    def train(self) -> TabularPredictor:
+    def train(self, time_limit: int = 300, presets: str = "best_quality") -> None:
         """
-        Train AutoGluon model on the dataset.
-        The TabularPredictor object is returned.
+        time_limit: seconds for AutoGluon training
+        presets: "best_quality", "fast_training", "medium_quality", etc.
         """
-        self.predictor = TabularPredictor(
-            label=self.label_column,
-            verbosity=0,
-        ).fit(self.training_data)
-        return self.predictor
+        self.model = TabularPredictor(label=self.target_column, path=self.save_path).fit(
+            self.train_data,
+            presets=presets,
+            time_limit=time_limit
+        )
 
-    def evaluate(self) -> dict[str, float]:
-        """
-        Returns training evaluation metrics (using same training data).
-        """
-        if self.predictor is None:
-            raise RuntimeError("Model has not been trained yet.")
-        performance = self.predictor.evaluate(self.training_data)
-        return performance
+    def evaluate_training(self) -> None:
+        preds = self.model.predict(self.X_train)
+        mae = mean_absolute_error(self.y_train, preds)
+        cv = np.std(self.y_train - preds) / np.mean(self.y_train) * 100
+        print(f"MAE: {mae:,.0f} PLN | CV: {cv:.2f}% | Mean true: {self.y_train.mean():,.0f} | Mean pred: {preds.mean():,.0f}")
 
-
-def main() -> None:
-    train_path = Path("data/processed/salary_data_train.csv")
-    label = "income"
-
-    trainer = AutoGluonTrainer(data_path=train_path, label_column=label)
-    trainer.load_data()
-    predictor = trainer.train()
-    metrics = trainer.evaluate()
-
-    print("\n--- AutoGluon train metrics ---")
-    print(metrics)
-
-
-if __name__ == "__main__":
-    main()
+    def save_model(self) -> None:
+        print(f"Model saved at: {self.save_path}")
