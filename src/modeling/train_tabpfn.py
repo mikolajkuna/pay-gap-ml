@@ -1,45 +1,50 @@
-# src/modeling/train_tabpfn.py
-
-import os
-from pathlib import Path
-import numpy as np
 from tabpfn import TabPFNRegressor
-from sklearn.metrics import mean_absolute_error
-from src.dataset.loader import CSVLoader
+from src.config import TRAIN_CSV, FEATURES
+from src.features.feature_engineering import build_features
 import pandas as pd
-from typing import Optional
+import os
 
 class TabPFNTrainer:
-    def __init__(self, feature_columns: list[str], target_column: str = "income"):
-        self.feature_columns = feature_columns
-        self.target_column = target_column
-        self.model: Optional[TabPFNRegressor] = None
-        self.X_train: Optional[pd.DataFrame] = None
-        self.y_train: Optional[pd.Series] = None
+    def __init__(self, random_state=42):
+        self.random_state = random_state
+        self.model = None
+        self.X_train = None
+        self.y_train = None
 
-        if "HF_TOKEN" not in os.environ or not os.environ["HF_TOKEN"]:
-            token = input("Please enter your HuggingFace token (HF_TOKEN): ").strip()
-            os.environ["HF_TOKEN"] = token
+    def load_data(self, csv_path):
+        """
+        Load data and preprocess it.
+        """
+        df = pd.read_csv(csv_path)
+        df = build_features(df)
+        self.X_train = df[FEATURES]
+        self.y_train = df["income"]
 
-    def load_data(self, train_file: Path) -> None:
-        loader = CSVLoader(train_file, self.feature_columns, self.target_column)
-        self.X_train, self.y_train = loader.load()
-
-    def train(self, num_trees: int = 150, num_particles: int = 8) -> None:
-        self.model = TabPFNRegressor(
-            num_trees=num_trees,
-            num_particles=num_particles,
-            random_state=42,
-            n_jobs=-1
-        )
+    def train(self):
+        """
+        Trains the TabPFN model and optionally asks for Hugging Face token if not set.
+        """
+        # Zapytaj o token jeśli nie jest ustawiony w środowisku
+        hf_token = os.getenv("HF_TOKEN")
+        if not hf_token:
+            hf_token = input("Please enter your Hugging Face token: ")
+            os.environ["HF_TOKEN"] = hf_token
+        
+        # Inicjalizowanie modelu
+        self.model = TabPFNRegressor(device="cpu")
         self.model.fit(self.X_train, self.y_train)
+        
+        # Save the trained model (optional)
+        print("Model training complete.")
 
-    def evaluate_training(self) -> None:
-        preds = self.model.predict(self.X_train)
-        mae = mean_absolute_error(self.y_train, preds)
-        cv = np.std(self.y_train - preds) / np.mean(self.y_train) * 100
-        print(f"MAE: {mae:,.0f} PLN | CV: {cv:.2f}% | Mean true: {self.y_train.mean():,.0f} | Mean pred: {preds.mean():,.0f}")
-
-    def save_model(self, path: Path) -> None:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        self.model.save(path)
+    def evaluate_training(self):
+        """
+        Evaluate the model's performance on training data (optional).
+        """
+        if self.model:
+            predictions = self.model.predict(self.X_train)
+            # Evaluate the model (for instance, R² score or mean squared error)
+            from sklearn.metrics import mean_squared_error, r2_score
+            mse = mean_squared_error(self.y_train, predictions)
+            r2 = r2_score(self.y_train, predictions)
+            print(f"MSE: {mse}, R²: {r2}")
