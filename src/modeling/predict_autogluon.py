@@ -1,15 +1,12 @@
-# src/modeling/predict_autogluon.py
-
 from pathlib import Path
 import pandas as pd
 import numpy as np
 from autogluon.tabular import TabularPredictor
 from sklearn.metrics import mean_absolute_error
-from src.dataset.loader import CSVLoader
-from typing import Optional
+from typing import Optional, List
 
 class AutoGluonPredictor:
-    def __init__(self, feature_columns: list[str], target_column: str = "income", model_path: Path = Path("models/autogluon")):
+    def __init__(self, feature_columns: List[str], target_column: str = "income", model_path: Path = Path("models/autogluon")):
         self.feature_columns = feature_columns
         self.target_column = target_column
         self.model_path = model_path
@@ -20,11 +17,9 @@ class AutoGluonPredictor:
     def load_model(self) -> None:
         self.model = TabularPredictor.load(self.model_path)
 
-    def load_data(self, test_file: Path) -> None:
-        loader = CSVLoader(test_file, self.feature_columns, self.target_column)
-        self.X_test, self.y_test = loader.load()
-
     def predict(self) -> np.ndarray:
+        if self.X_test is None:
+            raise ValueError("X_test must be set before predicting.")
         return self.model.predict(self.X_test).to_numpy()
 
     def evaluate(self) -> None:
