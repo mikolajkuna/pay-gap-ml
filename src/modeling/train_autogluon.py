@@ -1,34 +1,32 @@
-# src/modeling/train_autogluon.py
-
 from pathlib import Path
 import pandas as pd
 import numpy as np
 from autogluon.tabular import TabularPredictor
 from sklearn.metrics import mean_absolute_error
-from src.dataset.loader import CSVLoader
-from typing import Optional
+from typing import Optional, List
 
 class AutoGluonTrainer:
-    def __init__(self, feature_columns: list[str], target_column: str = "income", save_path: Path = Path("models/autogluon")):
+    def __init__(self, feature_columns: List[str], target_column: str = "income", save_path: Path = Path("models/autogluon")):
         self.feature_columns = feature_columns
         self.target_column = target_column
         self.save_path = save_path
         self.model: Optional[TabularPredictor] = None
         self.X_train: Optional[pd.DataFrame] = None
         self.y_train: Optional[pd.Series] = None
-
-    def load_data(self, train_file: Path) -> None:
-        loader = CSVLoader(train_file, self.feature_columns, self.target_column)
-        self.X_train, self.y_train = loader.load()
-        # AutoGluon expects target column inside the DataFrame
-        self.train_data = self.X_train.copy()
-        self.train_data[self.target_column] = self.y_train
+        self.train_data: Optional[pd.DataFrame] = None
 
     def train(self, time_limit: int = 300, presets: str = "best_quality") -> None:
         """
-        time_limit: seconds for AutoGluon training
-        presets: "best_quality", "fast_training", "medium_quality", etc.
+        Trains AutoGluon model.
+        time_limit: seconds
+        presets: "best_quality", "fast_training", etc.
         """
+        if self.X_train is None or self.y_train is None:
+            raise ValueError("X_train and y_train must be set before training.")
+
+        self.train_data = self.X_train.copy()
+        self.train_data[self.target_column] = self.y_train
+
         self.model = TabularPredictor(label=self.target_column, path=self.save_path).fit(
             self.train_data,
             presets=presets,
